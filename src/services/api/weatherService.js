@@ -87,10 +87,32 @@ const weatherService = {
 
 function parseTemperatureObject(tempStr) {
   try {
-    if (typeof tempStr === 'object') return tempStr;
-    if (typeof tempStr === 'string') {
-      return JSON.parse(tempStr);
+    // If already an object with expected structure, return it
+    if (typeof tempStr === 'object' && tempStr !== null) {
+      if ('high' in tempStr || 'low' in tempStr) {
+        return tempStr;
+      }
     }
+    
+    // If string, attempt to parse as JSON
+    if (typeof tempStr === 'string') {
+      const trimmed = tempStr.trim();
+      
+      // Check for empty or invalid strings
+      if (!trimmed || trimmed === 'null' || trimmed === 'undefined') {
+        return { high: 70, low: 50 };
+      }
+      
+      // Attempt JSON parsing only if string looks like JSON
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        return JSON.parse(trimmed);
+      }
+      
+      // Not JSON format, return default
+      return { high: 70, low: 50 };
+    }
+    
+    // For any other type (number, boolean, null, undefined), return default
     return { high: 70, low: 50 };
   } catch (error) {
     console.error("Error parsing temperature:", error);
