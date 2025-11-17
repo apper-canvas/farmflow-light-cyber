@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import ApperIcon from "@/components/ApperIcon";
 import { cn } from "@/utils/cn";
+import ApperIcon from "@/components/ApperIcon";
 
-const Header = () => {
+const Header = ({ onToggleSideMenu = () => {} }) => {
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -41,6 +41,15 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
+{/* Hamburger Menu Button */}
+          <button
+            onClick={onToggleSideMenu}
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-primary/5 transition-colors mr-4"
+            aria-label="Toggle menu"
+          >
+            <ApperIcon name="Menu" size={20} className="text-gray-600" />
+          </button>
+
           <nav className="hidden lg:flex items-center space-x-2">
             {navItems.map((item) => {
               const isActive = (item.path === "" && location.pathname === "/") || 
