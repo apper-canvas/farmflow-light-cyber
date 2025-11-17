@@ -264,4 +264,3 @@ const taskService = {
 };
 
 export default taskService;
-export default taskService;

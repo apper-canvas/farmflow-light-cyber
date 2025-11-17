@@ -5,7 +5,6 @@ import farmService from "@/services/api/farmService";
 import cropService from "@/services/api/cropService";
 import ApperIcon from "@/components/ApperIcon";
 import FormField from "@/components/molecules/FormField";
-import Loading from "@/components/ui/Loading";
 import Empty from "@/components/ui/Empty";
 import ErrorView from "@/components/ui/ErrorView";
 import Modal from "@/components/organisms/Modal";
@@ -19,8 +18,8 @@ const Crops = () => {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingCrop, setEditingCrop] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-const [formData, setFormData] = useState({
+const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
     farmId_c: "",
     cropType_c: "",
     fieldLocation_c: "",
@@ -49,9 +48,9 @@ const [formData, setFormData] = useState({
   ];
 
   const loadData = async () => {
-    try {
+try {
       setError("");
-setLoading(true);
+      setLoading(true);
       
       const [cropsData, farmsData] = await Promise.all([
         cropService.getAll(),
@@ -66,8 +65,9 @@ setLoading(true);
       setLoading(false);
     }
   };
+};
 
-const resetForm = () => {
+  const resetForm = () => {
     setFormData({
       farmId_c: "",
       cropType_c: "",
@@ -79,13 +79,13 @@ const resetForm = () => {
     });
     setEditingCrop(null);
   };
-
   const handleAdd = () => {
     resetForm();
     setShowModal(true);
   };
+};
 
-const handleEdit = (crop) => {
+  const handleEdit = (crop) => {
     setFormData({
       farmId_c: crop.farmId_c?.Id || crop.farmId_c,
       cropType_c: crop.cropType_c,
@@ -98,7 +98,6 @@ const handleEdit = (crop) => {
     setEditingCrop(crop);
     setShowModal(true);
   };
-
   const handleDelete = async (cropId) => {
     if (!window.confirm("Are you sure you want to delete this crop?")) {
       return;
@@ -126,8 +125,9 @@ const handleEdit = (crop) => {
       [name]: value
     }));
   };
+};
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.farmId_c || !formData.cropType_c || !formData.fieldLocation_c || 
@@ -138,7 +138,7 @@ const handleSubmit = async (e) => {
 
     setIsSubmitting(true);
     
-try {
+    try {
       const cropData = {
         ...formData,
         plantingDate_c: new Date(formData.plantingDate_c).toISOString(),
@@ -188,12 +188,12 @@ try {
   const getDaysToHarvest = (harvestDate) => {
     return differenceInDays(new Date(harvestDate), new Date());
   };
+};
 
-const getFarmName = (farmId) => {
+  const getFarmName = (farmId) => {
     const farm = farms.find(f => f.Id === farmId || f.Id === parseInt(farmId));
     return farm ? (farm.name_c || farm.name) : "Unknown Farm";
   };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -210,10 +210,10 @@ const getFarmName = (farmId) => {
           icon="Sprout"
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {crops.map((crop) => {
             const daysToHarvest = getDaysToHarvest(crop.expectedHarvestDate_c);
-return (
+            return (
               <div key={crop.Id} className="card hover:shadow-xl">
                 <div className="flex items-start justify-between mb-4">
                   <div className="space-y-2">
@@ -282,8 +282,9 @@ return (
                     </Button>
                   </div>
                 </div>
-              </div>
+</div>
             );
+          })}
         </div>
       )}
 
@@ -293,8 +294,9 @@ return (
         title={editingCrop ? "Edit Crop" : "Add New Crop"}
         maxWidth="max-w-2xl"
       >
+>
         <form onSubmit={handleSubmit} className="space-y-6">
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               label="Farm"
               name="farmId_c"
@@ -305,7 +307,6 @@ return (
               required
             />
             <FormField
-              label="Crop Type"
               name="cropType_c"
               type="select"
               value={formData.cropType_c}

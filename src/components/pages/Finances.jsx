@@ -486,7 +486,7 @@ function renderModal() {
               />
             </div>
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 label="Amount"
                 name="amount_c"
@@ -528,47 +528,6 @@ function renderModal() {
               onChange={handleInputChange}
               required
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                label="Amount"
-                name="amount"
-                type="number"
-                step="0.01"
-                value={formData.amount}
-                onChange={handleInputChange}
-                placeholder="0.00"
-                required
-              />
-
-              <FormField
-                label="Category"
-                name="category"
-                type="select"
-                value={formData.category}
-                onChange={handleInputChange}
-                options={(formData.type === "income" ? incomeCategories : expenseCategories)
-                  .map(cat => ({ value: cat, label: cat }))}
-                placeholder="Select category"
-                required
-              />
-            </div>
-
-            <FormField
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="e.g., Corn seed purchase, Wheat harvest sale"
-              required
-            />
-
-            <FormField
-              label="Date"
-              name="date"
-              type="date"
-              value={formData.date}
-              onChange={handleInputChange}
-              required
 
             <div className="flex space-x-4">
               <Button
@@ -682,7 +641,6 @@ function renderModal() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Total Income"

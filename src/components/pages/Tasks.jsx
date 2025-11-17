@@ -24,7 +24,6 @@ const Tasks = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
-const [priorityFilter, setPriorityFilter] = useState("all");
 
   const [formData, setFormData] = useState({
     farmId_c: "",
@@ -360,13 +359,12 @@ const getFarmName = (farmId) => {
             checked={formData.recurring_c}
             onChange={handleInputChange}
           />
-
-          <div className="flex space-x-4">
-          <div className="flex space-x-4">
+<div className="flex space-x-4">
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
+              className="flex-1"
               className="flex-1"
               disabled={isSubmitting}
             >
