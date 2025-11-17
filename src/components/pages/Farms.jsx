@@ -27,10 +27,10 @@ name_c: "",
 
   const resetForm = () => {
     setFormData({
-      name: "",
-      location: "",
-      size: "",
-      sizeUnit: "acres"
+name_c: "",
+      location_c: "",
+      size_c: "",
+      sizeUnit_c: "acres"
     });
     setEditingFarm(null);
   };
@@ -57,17 +57,17 @@ name_c: farm.name_c,
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: name === 'size' ? (value === '' ? '' : parseFloat(value)) : value
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.location.trim() || !formData.size) {
+if (!formData.name_c.trim() || !formData.location_c.trim() || !formData.size_c) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -76,8 +76,8 @@ name_c: farm.name_c,
     
     try {
       const farmData = {
-        ...formData,
-        size: parseFloat(formData.size)
+...formData,
+        size_c: typeof formData.size_c === 'string' ? parseFloat(formData.size_c) : formData.size_c
       };
 
       if (editingFarm) {
@@ -110,8 +110,8 @@ handleClose();
         <form onSubmit={handleSubmit} className="space-y-6">
           <FormField
             label="Farm Name"
-            name="name"
-            value={formData.name}
+name="name_c"
+            value={formData.name_c}
             onChange={handleInputChange}
             placeholder="Enter farm name"
             required
@@ -119,8 +119,8 @@ handleClose();
 
           <FormField
             label="Location"
-            name="location"
-            value={formData.location}
+name="location_c"
+            value={formData.location_c}
             onChange={handleInputChange}
             placeholder="Enter farm location"
             required
@@ -129,19 +129,19 @@ handleClose();
           <div className="grid grid-cols-2 gap-4">
             <FormField
               label="Size"
-              name="size"
+name="size_c"
               type="number"
-              value={formData.size}
+              value={formData.size_c}
               onChange={handleInputChange}
               placeholder="0"
               required
             />
 
             <FormField
-              label="Unit"
-              name="sizeUnit"
+label="Unit"
+              name="sizeUnit_c"
               type="select"
-              value={formData.sizeUnit}
+              value={formData.sizeUnit_c}
               onChange={handleInputChange}
               options={sizeUnitOptions}
               required
