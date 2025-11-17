@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { format } from "date-fns";
+import weatherService from "@/services/api/weatherService";
 import ApperIcon from "@/components/ApperIcon";
-import Button from "@/components/atoms/Button";
 import Loading from "@/components/ui/Loading";
 import ErrorView from "@/components/ui/ErrorView";
-import weatherService from "@/services/api/weatherService";
-import { format } from "date-fns";
+import Button from "@/components/atoms/Button";
 
 const Weather = () => {
   const [forecast, setForecast] = useState([]);
@@ -127,51 +127,47 @@ const Weather = () => {
         </Button>
       </div>
 
-      {/* Current Weather */}
+{/* Current Weather */}
       {forecast.length > 0 && (
-        <div className={`card bg-gradient-to-br ${getBackgroundGradient(forecast[0].condition)} border-2 border-white/50`}>
+        <div className={`card bg-gradient-to-br ${getBackgroundGradient(forecast[0].condition_c)} border-2 border-white/50`}>
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Today's Weather</h2>
-              <p className="text-gray-600">{format(new Date(forecast[0].date), "EEEE, MMMM dd, yyyy")}</p>
+              <p className="text-gray-600">{format(new Date(forecast[0].date_c), "EEEE, MMMM dd, yyyy")}</p>
             </div>
-            
             <div className="text-right">
-              <div className="flex items-center space-x-4">
-                <ApperIcon 
-                  name={getWeatherIcon(forecast[0].condition)} 
-                  size={64} 
-                  className={getConditionColor(forecast[0].condition)} 
-                />
-                <div>
-                  <p className="text-4xl font-bold text-gray-900">
-                    {forecast[0].temperature.high}°F
-                  </p>
-                  <p className="text-lg text-gray-600">
-                    Low: {forecast[0].temperature.low}°F
-                  </p>
-                </div>
-              </div>
+              <ApperIcon 
+                name={getWeatherIcon(forecast[0].condition_c)} 
+                size={48} 
+                className={`${getConditionColor(forecast[0].condition_c)}`} 
+              />
+              <p className="text-sm text-gray-600 mt-2">{forecast[0].condition_c}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="text-center p-3 bg-white/30 backdrop-blur-sm rounded-lg">
+              <ApperIcon name="Thermometer" size={20} className="mx-auto mb-2 text-red-500" />
+              <p className="text-sm text-gray-600 mb-1">Temperature</p>
+              <p className="font-semibold text-gray-900">{forecast[0].temperature?.high}°F</p>
+            </div>
+
             <div className="text-center p-3 bg-white/30 backdrop-blur-sm rounded-lg">
               <ApperIcon name="Eye" size={20} className="mx-auto mb-2 text-gray-700" />
               <p className="text-sm text-gray-600 mb-1">Condition</p>
-              <p className="font-semibold text-gray-900">{forecast[0].condition}</p>
+              <p className="font-semibold text-gray-900">{forecast[0].condition_c}</p>
             </div>
             
             <div className="text-center p-3 bg-white/30 backdrop-blur-sm rounded-lg">
               <ApperIcon name="Droplets" size={20} className="mx-auto mb-2 text-blue-500" />
               <p className="text-sm text-gray-600 mb-1">Precipitation</p>
-              <p className="font-semibold text-gray-900">{forecast[0].precipitation}%</p>
+              <p className="font-semibold text-gray-900">{forecast[0].precipitation_c}%</p>
             </div>
             
             <div className="text-center p-3 bg-white/30 backdrop-blur-sm rounded-lg">
               <ApperIcon name="Wind" size={20} className="mx-auto mb-2 text-gray-500" />
               <p className="text-sm text-gray-600 mb-1">Humidity</p>
-              <p className="font-semibold text-gray-900">{forecast[0].humidity}%</p>
+              <p className="font-semibold text-gray-900">{forecast[0].humidity_c}%</p>
             </div>
           </div>
 
@@ -196,46 +192,48 @@ const Weather = () => {
       <div className="card">
         <h2 className="text-xl font-bold text-gray-900 mb-6">7-Day Forecast</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
           {forecast.map((day, index) => (
             <div key={index} className={`p-4 rounded-lg transition-all duration-200 hover:shadow-lg ${
               index === 0 
-                ? `bg-gradient-to-br ${getBackgroundGradient(day.condition)} border-2 border-primary` 
+                ? `bg-gradient-to-br ${getBackgroundGradient(day.condition_c)} border-2 border-primary` 
                 : "bg-gray-50 hover:bg-gray-100"
             }`}>
               <div className="text-center space-y-3">
                 <div>
                   <p className={`text-sm font-medium ${index === 0 ? "text-primary" : "text-gray-600"}`}>
-                    {index === 0 ? "Today" : format(new Date(day.date), "EEE")}
+                    {index === 0 ? "Today" : format(new Date(day.date_c), "EEE")}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {format(new Date(day.date), "MMM dd")}
+                    {format(new Date(day.date_c), "MMM dd")}
                   </p>
                 </div>
 
                 <ApperIcon 
-                  name={getWeatherIcon(day.condition)} 
-                  size={40} 
-                  className={getConditionColor(day.condition)} 
+                  name={getWeatherIcon(day.condition_c)} 
+                  size={32} 
+                  className={getConditionColor(day.condition_c)} 
                 />
 
                 <div className="space-y-1">
-                  <p className="text-lg font-bold text-gray-900">
-                    {day.temperature.high}°
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {day.temperature.low}°
-                  </p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">High:</span>
+                    <span className="font-semibold text-gray-900">{day.temperature?.high}°F</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Low:</span>
+                    <span className="font-semibold text-gray-900">{day.temperature?.low}°F</span>
+                  </div>
                 </div>
 
-                <p className="text-xs text-gray-700 font-medium truncate">
-                  {day.condition}
+                <div className="flex items-center justify-center space-x-2 text-sm">
+                  <ApperIcon name="Droplets" size={16} className="text-blue-500" />
+                  <span>{day.precipitation_c}%</span>
+                </div>
+
+                <p className="text-xs text-gray-600">
+                  {day.condition_c}
                 </p>
-
-                <div className="flex items-center justify-center space-x-2 text-xs text-gray-600">
-                  <ApperIcon name="Droplets" size={12} className="text-blue-500" />
-                  <span>{day.precipitation}%</span>
-                </div>
               </div>
             </div>
           ))}
@@ -248,39 +246,36 @@ const Weather = () => {
           <ApperIcon name="AlertTriangle" size={20} className="mr-2 text-warning" />
           Weather Alerts & Tips
         </h3>
-        
-        <div className="space-y-3">
-          {forecast.filter(day => day.precipitation > 20).length > 0 && (
+<div className="space-y-3">
+          {forecast.filter(day => day.precipitation_c > 20).length > 0 && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center">
                 <ApperIcon name="CloudRain" size={20} className="text-blue-600 mr-3" />
                 <div>
-                  <p className="font-semibold text-blue-900">Rain Expected</p>
+                  <p className="font-semibold text-blue-900">Heavy Precipitation Alert</p>
                   <p className="text-sm text-blue-700">
-                    {forecast.filter(day => day.precipitation > 20).length} days with significant precipitation expected. 
-                    Plan indoor activities and protect sensitive crops.
+                    {forecast.filter(day => day.precipitation_c > 20).length} days with significant precipitation expected. Plan indoor tasks and protect equipment.
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {forecast.filter(day => day.temperature.high > 85).length > 0 && (
+          {forecast.filter(day => day.temperature?.high > 85).length > 0 && (
             <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
               <div className="flex items-center">
                 <ApperIcon name="Sun" size={20} className="text-orange-600 mr-3" />
                 <div>
-                  <p className="font-semibold text-orange-900">Hot Weather Warning</p>
+                  <p className="font-semibold text-orange-900">High Temperature Alert</p>
                   <p className="text-sm text-orange-700">
-                    {forecast.filter(day => day.temperature.high > 85).length} days with high temperatures expected. 
-                    Ensure adequate irrigation and consider early morning work schedules.
+                    {forecast.filter(day => day.temperature?.high > 85).length} days with high temperatures expected. Ensure proper irrigation and crop monitoring.
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {forecast.filter(day => day.condition.toLowerCase() === "sunny").length >= 5 && (
+          {forecast.filter(day => day.condition_c?.toLowerCase() === "sunny").length >= 5 && (
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center">
                 <ApperIcon name="Sun" size={20} className="text-green-600 mr-3" />

@@ -2,18 +2,18 @@ import React, { useEffect, useState } from "react";
 import { endOfMonth, endOfQuarter, endOfYear, format, isWithinInterval, startOfMonth, startOfQuarter, startOfYear } from "date-fns";
 import { toast } from "react-toastify";
 import Chart from "react-apexcharts";
-import financialService from "@/services/api/financialService";
 import farmService from "@/services/api/farmService";
+import financialService from "@/services/api/financialService";
 import ApperIcon from "@/components/ApperIcon";
-import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
-import Modal from "@/components/organisms/Modal";
-import FormField from "@/components/molecules/FormField";
 import StatCard from "@/components/molecules/StatCard";
 import SearchBar from "@/components/molecules/SearchBar";
-import Empty from "@/components/ui/Empty";
+import FormField from "@/components/molecules/FormField";
 import Loading from "@/components/ui/Loading";
+import Empty from "@/components/ui/Empty";
 import ErrorView from "@/components/ui/ErrorView";
+import Modal from "@/components/organisms/Modal";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
 
 const Finances = () => {
   const [entries, setEntries] = useState([]);
@@ -29,13 +29,13 @@ const Finances = () => {
   const [typeFilter, setTypeFilter] = useState("all");
 const [categoryFilter, setCategoryFilter] = useState("all");
   const [chartPeriod, setChartPeriod] = useState("monthly");
-  const [formData, setFormData] = useState({
-    farmId: "",
-    type: "expense",
-    amount: "",
-    category: "",
-    description: "",
-    date: ""
+const [formData, setFormData] = useState({
+    farmId_c: "",
+    type_c: "expense",
+    amount_c: "",
+    category_c: "",
+    description_c: "",
+    date_c: ""
   });
 
   const expenseCategories = [
@@ -52,7 +52,7 @@ const [categoryFilter, setCategoryFilter] = useState("all");
     { value: "expense", label: "Expenses Only" }
   ];
 
-  const loadData = async () => {
+const loadData = async () => {
     try {
       setError("");
       setLoading(true);
@@ -62,9 +62,8 @@ const [categoryFilter, setCategoryFilter] = useState("all");
         farmService.getAll(),
         financialService.getSummary()
       ]);
-
-      // Sort entries by date (newest first)
-      const sortedEntries = entriesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      const sortedEntries = entriesData.sort((a, b) => new Date(b.date_c) - new Date(a.date_c));
       
       setEntries(sortedEntries);
       setFarms(farmsData);
@@ -77,50 +76,46 @@ const [categoryFilter, setCategoryFilter] = useState("all");
     }
   };
 
-  // Get unique categories for filter
+// Get unique categories for filter
   const getAllCategories = () => {
-    const categories = [...new Set(entries.map(entry => entry.category))];
+    const categories = [...new Set(entries.map(entry => entry.category_c))].filter(Boolean);
     return [
       { value: "all", label: "All Categories" },
       ...categories.map(cat => ({ value: cat, label: cat }))
     ];
   };
 
-  // Filter entries based on search and filters
   useEffect(() => {
     let filtered = entries;
 
-    // Search filter
     if (searchTerm) {
       filtered = filtered.filter(entry =>
-        entry.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entry.category.toLowerCase().includes(searchTerm.toLowerCase())
+        entry.description_c?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.category_c?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Type filter
     if (typeFilter !== "all") {
-      filtered = filtered.filter(entry => entry.type === typeFilter);
+      filtered = filtered.filter(entry => entry.type_c === typeFilter);
     }
 
-    // Category filter
     if (categoryFilter !== "all") {
-      filtered = filtered.filter(entry => entry.category === categoryFilter);
+      filtered = filtered.filter(entry => entry.category_c === categoryFilter);
     }
 
     setFilteredEntries(filtered);
   }, [entries, searchTerm, typeFilter, categoryFilter]);
 
-  const resetForm = () => {
+const resetForm = () => {
     const today = new Date().toISOString().slice(0, 10);
     
     setFormData({
-      farmId: "",
-      type: "expense",
-      amount: "",
-      category: "",
-      description: "",
-      date: today
+      farmId_c: "",
+      type_c: "expense",
+      amount_c: "",
+      category_c: "",
+      description_c: "",
+      date_c: today
     });
     setEditingEntry(null);
   };
@@ -132,12 +127,12 @@ const [categoryFilter, setCategoryFilter] = useState("all");
 
   const handleEdit = (entry) => {
     setFormData({
-      farmId: entry.farmId,
-      type: entry.type,
-      amount: entry.amount.toString(),
-      category: entry.category,
-      description: entry.description,
-      date: format(new Date(entry.date), "yyyy-MM-dd")
+farmId_c: entry.farmId_c?.Id || entry.farmId_c,
+      type_c: entry.type_c,
+      amount_c: entry.amount_c.toString(),
+      category_c: entry.category_c,
+      description_c: entry.description_c,
+      date_c: format(new Date(entry.date_c), "yyyy-MM-dd")
     });
     setEditingEntry(entry);
     setShowModal(true);
@@ -171,16 +166,16 @@ const [categoryFilter, setCategoryFilter] = useState("all");
     }));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.farmId || !formData.amount || !formData.category || 
-        !formData.description || !formData.date) {
+    if (!formData.farmId_c || !formData.amount_c || !formData.category_c || 
+        !formData.description_c || !formData.date_c) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    if (isNaN(parseFloat(formData.amount)) || parseFloat(formData.amount) <= 0) {
+    if (isNaN(parseFloat(formData.amount_c)) || parseFloat(formData.amount_c) <= 0) {
       toast.error("Please enter a valid amount");
       return;
     }
@@ -189,9 +184,12 @@ const [categoryFilter, setCategoryFilter] = useState("all");
     
     try {
       const entryData = {
-        ...formData,
-        amount: parseFloat(formData.amount),
-        date: new Date(formData.date).toISOString()
+        farmId_c: formData.farmId_c,
+        type_c: formData.type_c,
+        amount_c: parseFloat(formData.amount_c),
+        category_c: formData.category_c,
+        description_c: formData.description_c,
+        date_c: new Date(formData.date_c).toISOString()
       };
 
       if (editingEntry) {
@@ -231,27 +229,87 @@ const [categoryFilter, setCategoryFilter] = useState("all");
     }).format(amount);
   };
 
-  const getFarmName = (farmId) => {
-    const farm = farms.find(f => f.Id.toString() === farmId);
-    return farm ? farm.name : "Unknown Farm";
+const getFarmName = (farmId) => {
+    if (!farmId) return "Unknown Farm";
+    const farm = farms.find(f => f.Id === farmId || f.Id === parseInt(farmId));
+    return farm ? (farm.name_c || farm.name) : "Unknown Farm";
   };
 
-// Data processing for trends chart
   function getTrendsChartData() {
     const aggregatedData = aggregateDataByPeriod(filteredEntries, chartPeriod);
     
     return [
       {
         name: 'Income',
-        data: aggregatedData.map(item => item.income),
-        color: '#4CAF50'
+        data: aggregatedData.map(item => item.income)
       },
       {
         name: 'Expenses',
-        data: aggregatedData.map(item => Math.abs(item.expenses)),
-        color: '#D32F2F'
+        data: aggregatedData.map(item => item.expenses)
       }
     ];
+  }
+
+  function getCategoryChartOptions() {
+    const expensesByCategory = {};
+    
+    filteredEntries
+      .filter(entry => entry.type_c === 'expense')
+      .forEach(entry => {
+        const category = entry.category_c;
+        expensesByCategory[category] = (expensesByCategory[category] || 0) + Math.abs(entry.amount_c);
+      });
+
+    return {
+      chart: {
+        type: 'pie',
+        background: 'transparent'
+      },
+      colors: ['#2D5016', '#7CB342', '#FF8A00', '#1976D2', '#FFC107', '#D32F2F', '#9C27B0'],
+      labels: Object.keys(expensesByCategory),
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200
+          },
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }],
+      legend: {
+        position: 'bottom',
+        horizontalAlign: 'center',
+        labels: {
+          colors: '#666'
+        }
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '45%'
+          }
+        }
+      },
+      tooltip: {
+        y: {
+          formatter: function (val) {
+            return '$' + val.toLocaleString();
+          }
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val, opts) {
+          return Math.round(val) + '%';
+        },
+        style: {
+          fontSize: '12px',
+          colors: ['#fff']
+        }
+      }
+    };
   }
 
   // Chart options for trends
@@ -333,113 +391,49 @@ const [categoryFilter, setCategoryFilter] = useState("all");
     };
   }
 
-  // Data processing for category chart
-  function getCategoryChartData() {
+function getCategoryChartData() {
     const expensesByCategory = {};
     
     filteredEntries
-      .filter(entry => entry.type === 'expense')
+      .filter(entry => entry.type_c === 'expense')
       .forEach(entry => {
-        const category = entry.category;
-        expensesByCategory[category] = (expensesByCategory[category] || 0) + Math.abs(entry.amount);
+        const category = entry.category_c;
+        expensesByCategory[category] = (expensesByCategory[category] || 0) + Math.abs(entry.amount_c);
       });
 
     return Object.values(expensesByCategory);
   }
 
-  // Chart options for category pie chart
-  function getCategoryChartOptions() {
-    const expensesByCategory = {};
-    
-    filteredEntries
-      .filter(entry => entry.type === 'expense')
-      .forEach(entry => {
-        const category = entry.category;
-        expensesByCategory[category] = (expensesByCategory[category] || 0) + Math.abs(entry.amount);
-      });
-
-    return {
-      chart: {
-        type: 'pie',
-        background: 'transparent'
-      },
-      colors: ['#2D5016', '#7CB342', '#FF8A00', '#1976D2', '#FFC107', '#D32F2F', '#9C27B0'],
-      labels: Object.keys(expensesByCategory),
-      responsive: [{
-        breakpoint: 480,
-        options: {
-          chart: {
-            width: 200
-          },
-          legend: {
-            position: 'bottom'
-          }
-        }
-      }],
-      legend: {
-        position: 'bottom',
-        horizontalAlign: 'center',
-        labels: {
-          colors: '#666'
-        }
-      },
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '45%'
-          }
-        }
-      },
-      tooltip: {
-        y: {
-          formatter: function (val) {
-            return '$' + val.toLocaleString();
-          }
-        }
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: function (val, opts) {
-          return Math.round(val) + '%';
-        },
-        style: {
-          fontSize: '12px',
-          colors: ['#fff']
-        }
-      }
-    };
-  }
-
-  // Aggregate data by time period
-  function aggregateDataByPeriod(data, period) {
+function aggregateDataByPeriod(data, period) {
     const aggregated = {};
     const now = new Date();
     
     data.forEach(entry => {
-      const entryDate = new Date(entry.date);
+      if (!entry.date_c) return;
+      
+      const entryDate = new Date(entry.date_c);
       let key;
       
       if (period === 'monthly') {
         key = format(entryDate, 'MMM yyyy');
       } else if (period === 'quarterly') {
-        const quarter = Math.floor(entryDate.getMonth() / 3) + 1;
-        key = `Q${quarter} ${entryDate.getFullYear()}`;
+        const quarterNum = Math.floor(entryDate.getMonth() / 3) + 1;
+        key = `Q${quarterNum} ${entryDate.getFullYear()}`;
       } else {
         key = entryDate.getFullYear().toString();
       }
       
       if (!aggregated[key]) {
-        aggregated[key] = { income: 0, expenses: 0, label: key };
+        aggregated[key] = { label: key, income: 0, expenses: 0 };
       }
       
-      if (entry.type === 'income') {
-        aggregated[key].income += entry.amount;
-      } else {
-        aggregated[key].expenses += Math.abs(entry.amount);
+      if (entry.type_c === 'expense') {
+        aggregated[key].expenses += Math.abs(entry.amount_c);
+      } else if (entry.type_c === 'income') {
+        aggregated[key].income += entry.amount_c;
       }
     });
     
-    // Sort by chronological order and return last 12 periods for monthly, 8 for quarterly, 5 for yearly
     const sortedData = Object.values(aggregated).sort((a, b) => {
       if (period === 'monthly') {
         return new Date(a.label + ' 01') - new Date(b.label + ' 01');
@@ -456,7 +450,7 @@ const [categoryFilter, setCategoryFilter] = useState("all");
     return sortedData.slice(-maxPeriods);
   }
 
-  function renderModal() {
+function renderModal() {
     return (
       <>
         <Modal
@@ -469,20 +463,20 @@ const [categoryFilter, setCategoryFilter] = useState("all");
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 label="Farm"
-                name="farmId"
+                name="farmId_c"
                 type="select"
-                value={formData.farmId}
+                value={formData.farmId_c}
                 onChange={handleInputChange}
-                options={farms.map(farm => ({ value: farm.Id.toString(), label: farm.name }))}
+                options={farms.map(farm => ({ value: farm.Id.toString(), label: farm.name_c || farm.name }))}
                 placeholder="Select farm"
                 required
               />
 
               <FormField
                 label="Type"
-                name="type"
+                name="type_c"
                 type="select"
-                value={formData.type}
+                value={formData.type_c}
                 onChange={handleInputChange}
                 options={[
                   { value: "income", label: "Income" },
@@ -492,6 +486,48 @@ const [categoryFilter, setCategoryFilter] = useState("all");
               />
             </div>
 
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="Amount"
+                name="amount_c"
+                type="number"
+                step="0.01"
+                value={formData.amount_c}
+                onChange={handleInputChange}
+                placeholder="0.00"
+                required
+              />
+
+              <FormField
+                label="Category"
+                name="category_c"
+                type="select"
+                value={formData.category_c}
+                onChange={handleInputChange}
+                options={(formData.type_c === "income" ? incomeCategories : expenseCategories)
+                  .map(cat => ({ value: cat, label: cat }))}
+                placeholder="Select category"
+                required
+              />
+            </div>
+
+            <FormField
+              label="Description"
+              name="description_c"
+              value={formData.description_c}
+              onChange={handleInputChange}
+              placeholder="e.g., Corn seed purchase, Wheat harvest sale"
+              required
+            />
+
+            <FormField
+              label="Date"
+              name="date_c"
+              type="date"
+              value={formData.date_c}
+              onChange={handleInputChange}
+              required
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 label="Amount"
@@ -533,7 +569,6 @@ const [categoryFilter, setCategoryFilter] = useState("all");
               value={formData.date}
               onChange={handleInputChange}
               required
-            />
 
             <div className="flex space-x-4">
               <Button
@@ -579,29 +614,29 @@ const [categoryFilter, setCategoryFilter] = useState("all");
     return (
       <div className="space-y-4">
         {filteredEntries.map((entry) => (
-          <div key={entry.Id} className="card hover:shadow-lg">
+<div key={entry.Id} className="card hover:shadow-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                  entry.type === "income" 
+                  entry.type_c === "income" 
                     ? "bg-gradient-to-br from-success/10 to-success/20" 
                     : "bg-gradient-to-br from-error/10 to-error/20"
                 }`}>
                   <ApperIcon 
-                    name={entry.type === "income" ? "TrendingUp" : "TrendingDown"} 
+                    name={entry.type_c === "income" ? "TrendingUp" : "TrendingDown"} 
                     size={24} 
-                    className={entry.type === "income" ? "text-success" : "text-error"} 
+                    className={entry.type_c === "income" ? "text-success" : "text-error"} 
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="font-semibold text-gray-900">{entry.description}</h3>
+                  <h3 className="font-semibold text-gray-900">{entry.description_c}</h3>
                   <div className="flex items-center space-x-4 text-sm text-gray-600">
-                    <span>{getFarmName(entry.farmId)}</span>
-                    <Badge variant={entry.type === "income" ? "success" : "error"}>
-                      {entry.category}
+                    <span>{getFarmName(entry.farmId_c?.Id || entry.farmId_c)}</span>
+                    <Badge variant={entry.type_c === "income" ? "success" : "error"}>
+                      {entry.category_c}
                     </Badge>
-                    <span>{format(new Date(entry.date), "MMM dd, yyyy")}</span>
+                    <span>{format(new Date(entry.date_c), "MMM dd, yyyy")}</span>
                   </div>
                 </div>
               </div>
@@ -609,9 +644,9 @@ const [categoryFilter, setCategoryFilter] = useState("all");
               <div className="flex items-center space-x-4">
                 <div className="text-right">
                   <p className={`text-2xl font-bold ${
-                    entry.type === "income" ? "text-success" : "text-error"
+                    entry.type_c === "income" ? "text-success" : "text-error"
                   }`}>
-                    {entry.type === "income" ? "+" : "-"}{formatCurrency(entry.amount)}
+                    {entry.type_c === "income" ? "+" : "-"}{formatCurrency(entry.amount_c)}
                   </p>
                 </div>
 
@@ -648,25 +683,27 @@ const [categoryFilter, setCategoryFilter] = useState("all");
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Total Income"
-          value={formatCurrency(summary.totalIncome)}
+          value={formatCurrency(summary?.totalIncome || 0)}
           icon="TrendingUp"
-          valueColor="text-success"
+          trend="up"
+          trendValue="+12.5%"
         />
         <StatCard
           title="Total Expenses"
-          value={formatCurrency(summary.totalExpenses)}
+          value={formatCurrency(summary?.totalExpenses || 0)}
           icon="TrendingDown"
-          valueColor="text-error"
+          trend="down"
+          trendValue="+8.2%"
         />
         <StatCard
           title="Net Balance"
-          value={formatCurrency(summary.netBalance)}
+          value={formatCurrency(summary?.netBalance || 0)}
           icon="DollarSign"
-          valueColor={summary.netBalance >= 0 ? "text-success" : "text-error"}
-          trend={summary.netBalance >= 0 ? "up" : "down"}
-          trendValue={summary.netBalance >= 0 ? "Profit" : "Loss"}
+          trend={summary?.netBalance >= 0 ? "up" : "down"}
+          trendValue={summary?.netBalance >= 0 ? "Profit" : "Loss"}
         />
       </div>
 

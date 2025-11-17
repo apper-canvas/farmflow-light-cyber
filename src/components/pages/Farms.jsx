@@ -11,10 +11,10 @@ const Farms = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [editingFarm, setEditingFarm] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    location: "",
-    size: "",
-    sizeUnit: "acres"
+name_c: "",
+    location_c: "",
+    size_c: "",
+    sizeUnit_c: "acres"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,10 +42,10 @@ const Farms = () => {
 
   const handleEdit = (farm) => {
     setFormData({
-      name: farm.name,
-      location: farm.location,
-      size: farm.size.toString(),
-      sizeUnit: farm.sizeUnit
+name_c: farm.name_c,
+      location_c: farm.location_c,
+      size_c: farm.size_c.toString(),
+      sizeUnit_c: farm.sizeUnit_c
     });
     setEditingFarm(farm);
     setShowModal(true);

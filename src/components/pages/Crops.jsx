@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { differenceInDays, format } from "date-fns";
+import { toast } from "react-toastify";
+import farmService from "@/services/api/farmService";
+import cropService from "@/services/api/cropService";
 import ApperIcon from "@/components/ApperIcon";
-import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
-import Modal from "@/components/organisms/Modal";
 import FormField from "@/components/molecules/FormField";
 import Loading from "@/components/ui/Loading";
-import ErrorView from "@/components/ui/ErrorView";
 import Empty from "@/components/ui/Empty";
-import cropService from "@/services/api/cropService";
-import farmService from "@/services/api/farmService";
-import { format, differenceInDays } from "date-fns";
-import { toast } from "react-toastify";
+import ErrorView from "@/components/ui/ErrorView";
+import Modal from "@/components/organisms/Modal";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
 
 const Crops = () => {
   const [crops, setCrops] = useState([]);
@@ -20,17 +20,15 @@ const Crops = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingCrop, setEditingCrop] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    farmId: "",
-    cropType: "",
-    fieldLocation: "",
-    plantingDate: "",
-    expectedHarvestDate: "",
-    status: "Planted",
-    notes: ""
+const [formData, setFormData] = useState({
+    farmId_c: "",
+    cropType_c: "",
+    fieldLocation_c: "",
+    plantingDate_c: "",
+    expectedHarvestDate_c: "",
+    status_c: "Planted",
+    notes_c: ""
   });
-
   const statusOptions = [
     { value: "Planted", label: "Planted" },
     { value: "Growing", label: "Growing" },
@@ -53,13 +51,12 @@ const Crops = () => {
   const loadData = async () => {
     try {
       setError("");
-      setLoading(true);
+setLoading(true);
       
       const [cropsData, farmsData] = await Promise.all([
         cropService.getAll(),
         farmService.getAll()
       ]);
-
       setCrops(cropsData);
       setFarms(farmsData);
     } catch (err) {
@@ -70,15 +67,15 @@ const Crops = () => {
     }
   };
 
-  const resetForm = () => {
+const resetForm = () => {
     setFormData({
-      farmId: "",
-      cropType: "",
-      fieldLocation: "",
-      plantingDate: "",
-      expectedHarvestDate: "",
-      status: "Planted",
-      notes: ""
+      farmId_c: "",
+      cropType_c: "",
+      fieldLocation_c: "",
+      plantingDate_c: "",
+      expectedHarvestDate_c: "",
+      status_c: "Planted",
+      notes_c: ""
     });
     setEditingCrop(null);
   };
@@ -88,15 +85,15 @@ const Crops = () => {
     setShowModal(true);
   };
 
-  const handleEdit = (crop) => {
+const handleEdit = (crop) => {
     setFormData({
-      farmId: crop.farmId,
-      cropType: crop.cropType,
-      fieldLocation: crop.fieldLocation,
-      plantingDate: format(new Date(crop.plantingDate), "yyyy-MM-dd"),
-      expectedHarvestDate: format(new Date(crop.expectedHarvestDate), "yyyy-MM-dd"),
-      status: crop.status,
-      notes: crop.notes || ""
+      farmId_c: crop.farmId_c?.Id || crop.farmId_c,
+      cropType_c: crop.cropType_c,
+      fieldLocation_c: crop.fieldLocation_c,
+      plantingDate_c: format(new Date(crop.plantingDate_c), "yyyy-MM-dd"),
+      expectedHarvestDate_c: format(new Date(crop.expectedHarvestDate_c), "yyyy-MM-dd"),
+      status_c: crop.status_c,
+      notes_c: crop.notes_c || ""
     });
     setEditingCrop(crop);
     setShowModal(true);
@@ -130,24 +127,23 @@ const Crops = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.farmId || !formData.cropType || !formData.fieldLocation || 
-        !formData.plantingDate || !formData.expectedHarvestDate) {
+    if (!formData.farmId_c || !formData.cropType_c || !formData.fieldLocation_c || 
+        !formData.plantingDate_c || !formData.expectedHarvestDate_c) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     setIsSubmitting(true);
     
-    try {
+try {
       const cropData = {
         ...formData,
-        plantingDate: new Date(formData.plantingDate).toISOString(),
-        expectedHarvestDate: new Date(formData.expectedHarvestDate).toISOString()
+        plantingDate_c: new Date(formData.plantingDate_c).toISOString(),
+        expectedHarvestDate_c: new Date(formData.expectedHarvestDate_c).toISOString()
       };
-
       if (editingCrop) {
         await cropService.update(editingCrop.Id, cropData);
         toast.success("Crop updated successfully!");
@@ -193,9 +189,9 @@ const Crops = () => {
     return differenceInDays(new Date(harvestDate), new Date());
   };
 
-  const getFarmName = (farmId) => {
-    const farm = farms.find(f => f.Id.toString() === farmId);
-    return farm ? farm.name : "Unknown Farm";
+const getFarmName = (farmId) => {
+    const farm = farms.find(f => f.Id === farmId || f.Id === parseInt(farmId));
+    return farm ? (farm.name_c || farm.name) : "Unknown Farm";
   };
 
   return (
@@ -203,67 +199,65 @@ const Crops = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Crop Management</h1>
         <Button onClick={handleAdd} icon="Plus">
-          Add Crop
+          Add New Crop
         </Button>
       </div>
 
       {crops.length === 0 ? (
         <Empty
-          title="No crops found"
-          description="Start by adding your first crop to begin tracking growth and harvest schedules."
-          actionLabel="Add Crop"
-          onAction={handleAdd}
-          icon="Wheat"
+          title="No crops yet"
+          description="Start managing your crops by adding a new crop"
+          icon="Sprout"
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {crops.map((crop) => {
-            const daysToHarvest = getDaysToHarvest(crop.expectedHarvestDate);
-            const isOverdue = daysToHarvest < 0 && crop.status !== "Harvested";
-            
-            return (
+            const daysToHarvest = getDaysToHarvest(crop.expectedHarvestDate_c);
+return (
               <div key={crop.Id} className="card hover:shadow-xl">
                 <div className="flex items-start justify-between mb-4">
                   <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-gray-900">{crop.cropType}</h3>
-                    <p className="text-sm text-gray-600">{getFarmName(crop.farmId)}</p>
-                    <p className="text-sm text-gray-600">{crop.fieldLocation}</p>
+                    <h3 className="text-lg font-bold text-gray-900">{crop.cropType_c}</h3>
+                    <p className="text-sm text-gray-600">{getFarmName(crop.farmId_c?.Id || crop.farmId_c)}</p>
                   </div>
-                  
-                  <Badge variant={getStatusColor(crop.status)}>
-                    {crop.status}
+                  <Badge variant={getStatusColor(crop.status_c)}>
+                    {crop.status_c}
                   </Badge>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-3 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-1">Planted</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {format(new Date(crop.plantingDate), "MMM dd")}
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Field Location</p>
+                    <p className="text-sm text-gray-600">{crop.fieldLocation_c}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Planting Date</p>
+                      <p className="text-sm text-gray-600">
+                        {format(new Date(crop.plantingDate_c), "MMM dd")}
                       </p>
                     </div>
-                    
-                    <div className="text-center p-3 bg-gradient-to-br from-secondary/5 to-secondary/10 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-1">Harvest</p>
-                      <p className={`text-sm font-semibold ${isOverdue ? "text-error" : "text-gray-900"}`}>
-                        {format(new Date(crop.expectedHarvestDate), "MMM dd")}
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Expected Harvest</p>
+                      <p className="text-sm text-gray-600">
+                        {format(new Date(crop.expectedHarvestDate_c), "MMM dd")}
                       </p>
                     </div>
                   </div>
 
-                  {crop.status !== "Harvested" && (
-                    <div className="text-center p-3 bg-gradient-to-br from-accent/5 to-accent/10 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-1">Days to Harvest</p>
-                      <p className={`text-xl font-bold ${isOverdue ? "text-error" : "text-accent"}`}>
-                        {isOverdue ? `${Math.abs(daysToHarvest)} overdue` : daysToHarvest}
+                  {crop.status_c !== "Harvested" && (
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <p className="text-sm font-medium text-blue-900">
+                        {daysToHarvest > 0 ? `${daysToHarvest} days until harvest` : "Ready to harvest"}
                       </p>
                     </div>
                   )}
 
-                  {crop.notes && (
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-600">{crop.notes}</p>
+                  {crop.notes_c && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Notes</p>
+                      <p className="text-sm text-gray-600">{crop.notes_c}</p>
                     </div>
                   )}
 
@@ -290,7 +284,6 @@ const Crops = () => {
                 </div>
               </div>
             );
-          })}
         </div>
       )}
 
@@ -301,23 +294,21 @@ const Crops = () => {
         maxWidth="max-w-2xl"
       >
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               label="Farm"
-              name="farmId"
+              name="farmId_c"
               type="select"
-              value={formData.farmId}
+              value={formData.farmId_c}
               onChange={handleInputChange}
-              options={farms.map(farm => ({ value: farm.Id.toString(), label: farm.name }))}
-              placeholder="Select farm"
+              options={farms.map(farm => ({ value: farm.Id.toString(), label: farm.name_c || farm.name }))}
               required
             />
-
             <FormField
               label="Crop Type"
-              name="cropType"
+              name="cropType_c"
               type="select"
-              value={formData.cropType}
+              value={formData.cropType_c}
               onChange={handleInputChange}
               options={cropTypes}
               placeholder="Select crop type"
@@ -327,8 +318,9 @@ const Crops = () => {
 
           <FormField
             label="Field Location"
-            name="fieldLocation"
-            value={formData.fieldLocation}
+            name="fieldLocation_c"
+            type="text"
+            value={formData.fieldLocation_c}
             onChange={handleInputChange}
             placeholder="e.g., North Field, Greenhouse A"
             required
@@ -337,18 +329,18 @@ const Crops = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               label="Planting Date"
-              name="plantingDate"
+              name="plantingDate_c"
               type="date"
-              value={formData.plantingDate}
+              value={formData.plantingDate_c}
               onChange={handleInputChange}
               required
             />
 
             <FormField
               label="Expected Harvest Date"
-              name="expectedHarvestDate"
+              name="expectedHarvestDate_c"
               type="date"
-              value={formData.expectedHarvestDate}
+              value={formData.expectedHarvestDate_c}
               onChange={handleInputChange}
               required
             />
@@ -356,9 +348,9 @@ const Crops = () => {
 
           <FormField
             label="Status"
-            name="status"
+            name="status_c"
             type="select"
-            value={formData.status}
+            value={formData.status_c}
             onChange={handleInputChange}
             options={statusOptions}
             required
@@ -366,13 +358,12 @@ const Crops = () => {
 
           <FormField
             label="Notes"
-            name="notes"
+            name="notes_c"
             type="textarea"
-            value={formData.notes}
+            value={formData.notes_c}
             onChange={handleInputChange}
             placeholder="Optional notes about this crop"
           />
-
           <div className="flex space-x-4">
             <Button
               type="button"

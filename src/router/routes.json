@@ -1,0 +1,74 @@
+{
+  "/": {
+    "allow": {
+      "when": {
+        "conditions": [
+          {
+            "label": "Dashboard is public",
+            "rule": "public"
+          }
+        ]
+      }
+    }
+  },
+  "/farms": {
+    "allow": {
+      "when": {
+        "conditions": [
+          {
+            "label": "Farms page is public",
+            "rule": "public"
+          }
+        ]
+      }
+    }
+  },
+  "/crops": {
+    "allow": {
+      "when": {
+        "conditions": [
+          {
+            "label": "Crops page is public",
+            "rule": "public"
+          }
+        ]
+      }
+    }
+  },
+  "/tasks": {
+    "allow": {
+      "when": {
+        "conditions": [
+          {
+            "label": "Tasks page is public",
+            "rule": "public"
+          }
+        ]
+      }
+    }
+  },
+  "/finances": {
+    "allow": {
+      "when": {
+        "conditions": [
+          {
+            "label": "Finances page is public",
+            "rule": "public"
+          }
+        ]
+      }
+    }
+  },
+  "/weather": {
+    "allow": {
+      "when": {
+        "conditions": [
+          {
+            "label": "Weather page is public",
+            "rule": "public"
+          }
+        ]
+      }
+    }
+  }
+}

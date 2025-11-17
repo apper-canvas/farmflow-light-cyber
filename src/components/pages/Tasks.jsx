@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
-import ApperIcon from "@/components/ApperIcon";
-import Button from "@/components/atoms/Button";
-import TaskCard from "@/components/molecules/TaskCard";
-import Modal from "@/components/organisms/Modal";
-import FormField from "@/components/molecules/FormField";
-import SearchBar from "@/components/molecules/SearchBar";
-import Loading from "@/components/ui/Loading";
-import ErrorView from "@/components/ui/ErrorView";
-import Empty from "@/components/ui/Empty";
-import taskService from "@/services/api/taskService";
-import farmService from "@/services/api/farmService";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import farmService from "@/services/api/farmService";
+import taskService from "@/services/api/taskService";
+import ApperIcon from "@/components/ApperIcon";
+import SearchBar from "@/components/molecules/SearchBar";
+import FormField from "@/components/molecules/FormField";
+import TaskCard from "@/components/molecules/TaskCard";
+import Loading from "@/components/ui/Loading";
+import Empty from "@/components/ui/Empty";
+import ErrorView from "@/components/ui/ErrorView";
+import Modal from "@/components/organisms/Modal";
+import Button from "@/components/atoms/Button";
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -24,16 +24,16 @@ const Tasks = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
+const [priorityFilter, setPriorityFilter] = useState("all");
 
   const [formData, setFormData] = useState({
-    farmId: "",
-    title: "",
-    description: "",
-    dueDate: "",
-    priority: "medium",
-    recurring: false
+    farmId_c: "",
+    title_c: "",
+    description_c: "",
+    dueDate_c: "",
+    priority_c: "medium",
+    recurring_c: false
   });
-
   const priorityOptions = [
     { value: "low", label: "Low Priority" },
     { value: "medium", label: "Medium Priority" },
@@ -53,7 +53,7 @@ const Tasks = () => {
     { value: "low", label: "Low Priority" }
   ];
 
-  const loadData = async () => {
+const loadData = async () => {
     try {
       setError("");
       setLoading(true);
@@ -64,7 +64,7 @@ const Tasks = () => {
       ]);
 
       // Sort tasks by due date
-      const sortedTasks = tasksData.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+      const sortedTasks = tasksData.sort((a, b) => new Date(a.dueDate_c) - new Date(b.dueDate_c));
       
       setTasks(sortedTasks);
       setFarms(farmsData);
@@ -76,46 +76,46 @@ const Tasks = () => {
     }
   };
 
-  // Filter tasks based on search and filters
+// Filter tasks based on search and filters
   useEffect(() => {
     let filtered = tasks;
 
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(task =>
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description.toLowerCase().includes(searchTerm.toLowerCase())
+        task.title_c.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description_c.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Status filter
     if (statusFilter !== "all") {
       filtered = filtered.filter(task => {
-        if (statusFilter === "pending") return !task.completed;
-        if (statusFilter === "completed") return task.completed;
+        if (statusFilter === "pending") return !task.completed_c;
+        if (statusFilter === "completed") return task.completed_c;
         return true;
       });
     }
 
     // Priority filter
     if (priorityFilter !== "all") {
-      filtered = filtered.filter(task => task.priority === priorityFilter);
+      filtered = filtered.filter(task => task.priority_c === priorityFilter);
     }
 
     setFilteredTasks(filtered);
   }, [tasks, searchTerm, statusFilter, priorityFilter]);
 
-  const resetForm = () => {
+const resetForm = () => {
     const now = new Date();
     const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     
     setFormData({
-      farmId: "",
-      title: "",
-      description: "",
-      dueDate: tomorrow.toISOString().slice(0, 16),
-      priority: "medium",
-      recurring: false
+      farmId_c: "",
+      title_c: "",
+      description_c: "",
+      dueDate_c: tomorrow.toISOString().slice(0, 16),
+      priority_c: "medium",
+      recurring_c: false
     });
     setEditingTask(null);
   };
@@ -125,14 +125,14 @@ const Tasks = () => {
     setShowModal(true);
   };
 
-  const handleEdit = (task) => {
+const handleEdit = (task) => {
     setFormData({
-      farmId: task.farmId,
-      title: task.title,
-      description: task.description,
-      dueDate: new Date(task.dueDate).toISOString().slice(0, 16),
-      priority: task.priority,
-      recurring: task.recurring
+      farmId_c: task.farmId_c?.Id || task.farmId_c,
+      title_c: task.title_c,
+      description_c: task.description_c,
+      dueDate_c: new Date(task.dueDate_c).toISOString().slice(0, 16),
+      priority_c: task.priority_c,
+      recurring_c: task.recurring_c
     });
     setEditingTask(task);
     setShowModal(true);
@@ -177,10 +177,10 @@ const Tasks = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.farmId || !formData.title || !formData.description || !formData.dueDate) {
+    if (!formData.farmId_c || !formData.title_c || !formData.description_c || !formData.dueDate_c) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -190,9 +190,9 @@ const Tasks = () => {
     try {
       const taskData = {
         ...formData,
-        dueDate: new Date(formData.dueDate).toISOString()
+        dueDate_c: new Date(formData.dueDate_c).toISOString()
       };
-
+      
       if (editingTask) {
         await taskService.update(editingTask.Id, taskData);
         toast.success("Task updated successfully!");
@@ -223,9 +223,9 @@ const Tasks = () => {
     return <ErrorView message={error} onRetry={loadData} />;
   }
 
-  const getFarmName = (farmId) => {
-    const farm = farms.find(f => f.Id.toString() === farmId);
-    return farm ? farm.name : "Unknown Farm";
+const getFarmName = (farmId) => {
+    const farm = farms.find(f => f.Id === farmId || f.Id === parseInt(farmId));
+    return farm ? (farm.name_c || farm.name) : "Unknown Farm";
   };
 
   return (
@@ -280,12 +280,12 @@ const Tasks = () => {
           onAction={handleAdd}
           icon="CheckSquare"
         />
-      ) : (
+) : (
         <div className="space-y-4">
           {filteredTasks.map((task) => (
             <TaskCard
               key={task.Id}
-              task={task}
+              task={{...task, title: task.title_c, description: task.description_c, dueDate: task.dueDate_c, priority: task.priority_c, completed: task.completed_c, recurring: task.recurring_c, farmId: task.farmId_c}}
               onToggleComplete={handleToggleComplete}
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -297,25 +297,24 @@ const Tasks = () => {
       <Modal
         isOpen={showModal}
         onClose={handleClose}
-        title={editingTask ? "Edit Task" : "Add New Task"}
-        maxWidth="max-w-2xl"
+        title={editingTask ? "Edit Task" : "Create New Task"}
       >
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <FormField
             label="Farm"
-            name="farmId"
+            name="farmId_c"
             type="select"
-            value={formData.farmId}
+            value={formData.farmId_c}
             onChange={handleInputChange}
-            options={farms.map(farm => ({ value: farm.Id.toString(), label: farm.name }))}
-            placeholder="Select farm"
+            options={farms.map(farm => ({ value: farm.Id.toString(), label: farm.name_c || farm.name }))}
             required
           />
 
           <FormField
             label="Task Title"
-            name="title"
-            value={formData.title}
+            name="title_c"
+            type="text"
+            value={formData.title_c}
             onChange={handleInputChange}
             placeholder="e.g., Water North Field, Harvest Wheat"
             required
@@ -323,9 +322,9 @@ const Tasks = () => {
 
           <FormField
             label="Description"
-            name="description"
+            name="description_c"
             type="textarea"
-            value={formData.description}
+            value={formData.description_c}
             onChange={handleInputChange}
             placeholder="Detailed description of the task"
             required
@@ -334,38 +333,35 @@ const Tasks = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               label="Due Date & Time"
-              name="dueDate"
+              name="dueDate_c"
               type="datetime-local"
-              value={formData.dueDate}
+              value={formData.dueDate_c}
               onChange={handleInputChange}
               required
             />
-
             <FormField
               label="Priority"
-              name="priority"
+              name="priority_c"
               type="select"
-              value={formData.priority}
+              value={formData.priority_c}
               onChange={handleInputChange}
-              options={priorityOptions}
-              required
+              options={[
+                { value: "high", label: "High" },
+                { value: "medium", label: "Medium" },
+                { value: "low", label: "Low" }
+              ]}
             />
           </div>
 
-          <div className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              id="recurring"
-              name="recurring"
-              checked={formData.recurring}
-              onChange={handleInputChange}
-              className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
-            />
-            <label htmlFor="recurring" className="text-sm font-medium text-gray-700">
-              Recurring Task
-            </label>
-          </div>
+          <FormField
+            label="Recurring Task"
+            name="recurring_c"
+            type="checkbox"
+            checked={formData.recurring_c}
+            onChange={handleInputChange}
+          />
 
+          <div className="flex space-x-4">
           <div className="flex space-x-4">
             <Button
               type="button"
