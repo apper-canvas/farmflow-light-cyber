@@ -5,6 +5,7 @@ import farmService from "@/services/api/farmService";
 import cropService from "@/services/api/cropService";
 import ApperIcon from "@/components/ApperIcon";
 import FormField from "@/components/molecules/FormField";
+import Loading from "@/components/ui/Loading";
 import Empty from "@/components/ui/Empty";
 import ErrorView from "@/components/ui/ErrorView";
 import Modal from "@/components/organisms/Modal";
@@ -60,12 +61,11 @@ try {
       setFarms(farmsData);
     } catch (err) {
       setError("Failed to load crops data");
-      console.error("Crops loading error:", err);
+console.error("Crops loading error:", err);
     } finally {
       setLoading(false);
     }
   };
-};
 
   const resetForm = () => {
     setFormData({
@@ -79,11 +79,10 @@ try {
     });
     setEditingCrop(null);
   };
-  const handleAdd = () => {
+const handleAdd = () => {
     resetForm();
     setShowModal(true);
   };
-};
 
   const handleEdit = (crop) => {
     setFormData({
@@ -121,11 +120,10 @@ try {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
-      ...prev,
+...prev,
       [name]: value
     }));
   };
-};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -184,11 +182,9 @@ try {
       default: return "default";
     }
   };
-
-  const getDaysToHarvest = (harvestDate) => {
+const getDaysToHarvest = (harvestDate) => {
     return differenceInDays(new Date(harvestDate), new Date());
   };
-};
 
   const getFarmName = (farmId) => {
     const farm = farms.find(f => f.Id === farmId || f.Id === parseInt(farmId));
@@ -291,10 +287,9 @@ try {
       <Modal
         isOpen={showModal}
         onClose={handleClose}
-        title={editingCrop ? "Edit Crop" : "Add New Crop"}
+title={editingCrop ? "Edit Crop" : "Add New Crop"}
         maxWidth="max-w-2xl"
       >
->
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -305,8 +300,9 @@ try {
               onChange={handleInputChange}
               options={farms.map(farm => ({ value: farm.Id.toString(), label: farm.name_c || farm.name }))}
               required
-            />
+/>
             <FormField
+              label="Crop Type"
               name="cropType_c"
               type="select"
               value={formData.cropType_c}
